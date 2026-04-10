@@ -50,6 +50,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+# Ensure Unicode output works on Windows terminals (Git Bash uses cp1252 by default)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 # ── Import from the persistent sovereign_agent project ────────────────────────
 # This is the import pattern you'll use in Weeks 2-5 as well.
 # The agent lives in sovereign_agent/ — the exercises just call it.

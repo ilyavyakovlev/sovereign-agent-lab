@@ -47,6 +47,7 @@ The agent picks up the new capability automatically — no other changes needed.
 import json
 import os
 from dotenv import load_dotenv
+
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
@@ -122,17 +123,39 @@ def run_research_agent(task: str, max_turns: int = 8) -> dict:
         role    = getattr(m, "type", "unknown")
         content = m.content
 
-        # Tool-call messages have structured list content
-        if isinstance(content, list):
-            for block in content:
-                if isinstance(block, dict) and block.get("type") == "tool_use":
-                    entry = {
-                        "tool": block["name"],
-                        "args": block.get("input", {}),
-                    }
-                    tool_calls_made.append(entry)
-                    full_trace.append({"role": "tool_call", **entry})
+        # Case 1: LangChain standard format — tool calls in m.tool_calls attribute
+        if hasattr(m, "tool_calls") and m.tool_calls:
+            for tc in m.tool_calls:
+                entry = {
+                    "tool": tc["name"],
+                    "args": tc.get("args", {}),
+                }
+                tool_calls_made.append(entry)
+                full_trace.append({"role": "tool_call", **entry})
             continue
+
+        # Case 2: Llama raw format — model outputs tool calls as a JSON array string
+        # in content instead of using the proper tool-calling API.
+        # Content looks like: '["{\"type\": \"function\", \"name\": ..., \"parameters\": ...}", ...]'
+        if isinstance(content, str) and content.strip().startswith("["):
+            try:
+                items = json.loads(content)
+                if isinstance(items, list):
+                    parsed_any = False
+                    for item in items:
+                        block = item if isinstance(item, dict) else json.loads(item)
+                        if isinstance(block, dict) and block.get("type") in ("function", "tool_use"):
+                            entry = {
+                                "tool": block.get("name", "unknown"),
+                                "args": block.get("parameters") or block.get("input") or block.get("arguments", {}),
+                            }
+                            tool_calls_made.append(entry)
+                            full_trace.append({"role": "tool_call", **entry})
+                            parsed_any = True
+                    if parsed_any:
+                        continue
+            except (TypeError, ValueError):
+                pass
 
         if content:
             full_trace.append({"role": role, "content": str(content)})

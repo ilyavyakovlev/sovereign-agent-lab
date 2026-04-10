@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from sovereign_agent.agents.research_agent import run_research_agent; result = run_research_agent\\('Test task', max_turns=2\\); print\\('tool_calls_made:', result['tool_calls_made']\\); print\\('full_trace length:', len\\(result['full_trace']\\)\\)\")"
+    ]
+  }
+}
