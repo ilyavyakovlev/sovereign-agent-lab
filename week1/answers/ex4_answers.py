@@ -54,11 +54,20 @@ an external provider and replace API calls to third-party services. In that case
 # naming a component and explaining why that component does that job.
 
 WEEK_5_ARCHITECTURE = """
-- FILL ME IN
-- FILL ME IN
-- FILL ME IN
-- FILL ME IN
-- FILL ME IN
+- The research agent serves as the core reasoning loop that plans goals, decides which tools to call, and synthesizes results into coherent responses.
+- The MCP tool layer abstracts external data sources and services, enabling dynamic tool discovery and decoupling tool implementation from agent logic.
+- The planning module breaks complex user requests into intermediate subgoals, deciding task sequencing and constraints before execution begins.
+- The persistent memory system stores conversation history, user preferences, and learned patterns to improve decision-making across sessions and maintain context.
+- The execution orchestrator manages tool invocation, error handling, retry logic, and state updates to ensure reliable autonomous operation despite external service failures.
+
+- The research agent is the central component responsible for the orchestration of
+the entire system. It processes user inputs, formulates plans, and decides which tools to call based on the task at hand.
+- MCP server contains two tools: search_venues and get_venue_details. These tools are responsible for providing the necessary information about venues based on the user's requirements.
+- Additonal tools: get_edinburgh_weather, calculate_catering_cost and generate_event_flyer
+- Planning module is responsible for breaking down complex user requests into manageable subgoals and determining the sequence of tool calls needed to achieve the desired outcome.
+- Rasa agent handles booking confirmation calls from the pubs.
+- In Rasa agent, we have Rasa Pro CALM handling language understanding and slot extraction, while Python enforces business rules and constraints to ensure that the booking meets Rod's requirements.
+
 """
 
 # ── The guiding question ───────────────────────────────────────────────────
@@ -66,5 +75,15 @@ WEEK_5_ARCHITECTURE = """
 # Must reference specific things you observed in your runs. Min 60 words.
 
 GUIDING_QUESTION_ANSWER = """
-FILL ME IN
+The research agent is better suited for the research phase because it excels 
+at complex reasoning, planning, and tool integration. It can process user inputs, 
+formulate plans, and decide which tools to call based on task requirements.
+
+The Rasa agent is more appropriate for handling booking confirmation calls from 
+the pubs because it is optimized for natural language understanding and slot extraction, 
+enabling it to extract key booking details and confirm constraints.
+
+Swapping them feels wrong: using LangGraph for confirmation calls would be using a 
+general-purpose reasoner for a structured task, while using Rasa for research would 
+lose the flexible reasoning needed to handle unexpected venue constraints or data issues.
 """
