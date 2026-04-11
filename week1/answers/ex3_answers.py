@@ -165,14 +165,15 @@ content of the user's message and the overall conversation history.
 
 # ── Task B: Cutoff guard ───────────────────────────────────────────────────
 
-TASK_B_DONE = None   # True or False
+TASK_B_DONE = True   # True or False
 
 # List every file you changed.
-TASK_B_FILES_CHANGED = []
+TASK_B_FILES_CHANGED = ["exercise3_rasa/actions/actions.py"]
 
 # How did you test that it works? Min 20 words.
 TASK_B_HOW_YOU_TESTED = """
-FILL ME IN
+I tested the cutoff guard by temporarily setting the condition to always True, 
+running a conversation, and verifying it escalated.
 """
 
 # ── CALM vs Old Rasa ───────────────────────────────────────────────────────
@@ -191,12 +192,12 @@ FILL ME IN
 # Min 30 words.
 
 CALM_VS_OLD_RASA = """
-FILL ME IN
-
-Think about:
-- What does the LLM handle now that Python handled before?
-- What does Python STILL handle, and why (hint: business rules)?
-- Is there anything you trusted more in the old approach?
+The simplification in Rasa Pro CALM reduces the amount of manual configuration and coding required to set up the agent.
+The LLM can handle a wider variety of natural language inputs without needing explicit regex patterns or intent examples.
+This allows for more flexibility and adaptability in conversations. 
+However, it also means that the agent's behavior is less deterministic and may require more careful prompt engineering to ensure it behaves as expected. The gain is a more natural and flexible conversational experience, while the cost is potentially less control over the agent's responses and the need for more testing to ensure reliability.
+Python still handles hard business rules and constraints, which is crucial for legally and financially binding decisions, 
+while the LLM handles language understanding and slot extraction.
 """
 
 # ── The setup cost ─────────────────────────────────────────────────────────
@@ -210,10 +211,18 @@ Think about:
 # Min 40 words.
 
 SETUP_COST_VALUE = """
-FILL ME IN
+The setup cost of Rasa Pro CALM is higher than LangGraph due to the need for multiple configuration files, 
+training steps, and a Rasa Pro license. However, this setup allows for a more structured and controlled conversational 
+agent that can handle complex dialogues and business rules. 
+The specific value gained from this setup is the ability to create a more robust and reliable agent that can 
+manage conversations in a way that is compliant with legal and financial requirements, 
+while still leveraging the power of an LLM for natural language understanding.
 
-Be specific. What can the Rasa CALM agent NOT do that LangGraph could?
-Is that a feature or a limitation for the confirmation use case?
-Think about: can the CALM agent improvise a response it wasn't trained on?
-Can it call a tool that wasn't defined in flows.yml?
+Meanwhile, Lonagraph architecture allows to build agents with more natural, human-like conversation flow
+It is also better suited for the scenarios with a wide variety of tools and complex multi-step reasoning, 
+as it can dynamically decide which tools to call and when, without needing explicit flow definitions or slot mappings.
+
+CALM agent can't improvise a response or use a tool that wasn'd defined in flows.yml, 
+which is a limitation for handling unexpected user inputs or tasks that weren't anticipated during the design phase.
+With Langraph, you can add tools dynamically.
 """
