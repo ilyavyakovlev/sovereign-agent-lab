@@ -182,7 +182,7 @@ def generate_event_flyer(venue_name: str, guest_count: int, event_theme: str) ->
     guest_count: confirmed number of attendees
     event_theme: short description, e.g. 'AI Meetup, professional, Scottish'
     """
-    # ── TODO: Replace this stub with a real images.generate() call ───────────
+    #: Replace this stub with a real images.generate() call ───────────
     #
     # 1. Import OpenAI at the top of this file:
     #      from openai import OpenAI

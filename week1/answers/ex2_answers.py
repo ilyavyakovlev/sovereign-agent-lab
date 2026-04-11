@@ -11,31 +11,31 @@ Run `python grade.py ex2` to check for obvious issues.
 # Look at [TOOL_CALL] lines in your terminal output.
 # Example: ["check_pub_availability", "get_edinburgh_weather"]
 
-TASK_A_TOOLS_CALLED = []
+TASK_A_TOOLS_CALLED = ["check_pub_availability", "calculate_catering_cost", "get_edinburgh_weather", "generate_event_flyer"]
 
 # Which venue did the agent confirm? Must be one of:
 # "The Albanach", "The Haymarket Vaults", or "none"
-TASK_A_CONFIRMED_VENUE = "FILL_ME_IN"
+TASK_A_CONFIRMED_VENUE = "none"
 
 # Total catering cost the agent calculated. Float, e.g. 5600.0
 # Write 0.0 if the agent didn't calculate it.
 TASK_A_CATERING_COST_GBP = 0.0
 
 # Did the weather tool return outdoor_ok = True or False?
-TASK_A_OUTDOOR_OK = None
+TASK_A_OUTDOOR_OK = False
 
-TASK_A_NOTES = ""   # optional — anything unexpected
+TASK_A_NOTES = "The script didn't return any answer. I also don't see the results of the tools call in the trace."   # optional — anything unexpected
 
 # ── Task B ─────────────────────────────────────────────────────────────────
 
 # Has generate_event_flyer been implemented (not just the stub)?
-TASK_B_IMPLEMENTED = None   # True or False
+TASK_B_IMPLEMENTED = True   # True or False
 
 # The image URL returned (or the error message if still a stub).
-TASK_B_IMAGE_URL_OR_ERROR = "FILL_ME_IN"
+TASK_B_IMAGE_URL_OR_ERROR = "URL"
 
 # The prompt sent to the image model. Copy from terminal output.
-TASK_B_PROMPT_USED = "FILL_ME_IN"
+TASK_B_PROMPT_USED = "Professional event flyer for Edinburgh AI Meetup, tech professionals, modern venue at The Haymarket Vaults, Edinburgh. 160 guests tonight. Warm lighting, Scottish architecture background, clean modern typography"
 
 # ── Task C ─────────────────────────────────────────────────────────────────
 
