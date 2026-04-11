@@ -112,5 +112,10 @@ just simple ReAct agent as in this example.
 # Must reference a specific behaviour from your run.
 
 MOST_SURPRISING = """
-FILL ME IN
+Sometimes the agent started to spit out some loggin data in the output.
+This behaviour was not deterministic and I didn't bother fixing it in the code.
+It is also quite peculiar how it response when you mix up the answer to the question and
+out-of-scope question - it tells you off, and then switches to the next question.
+The interaction with the Rasa agent fdefenitely looks like an automated agent from the
+previous era.
 """

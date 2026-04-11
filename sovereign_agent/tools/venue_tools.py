@@ -182,34 +182,38 @@ def generate_event_flyer(venue_name: str, guest_count: int, event_theme: str) ->
     guest_count: confirmed number of attendees
     event_theme: short description, e.g. 'AI Meetup, professional, Scottish'
     """
-    #: Replace this stub with a real images.generate() call ───────────
-    #
-    # 1. Import OpenAI at the top of this file:
-    #      from openai import OpenAI
-    #      import os
-    #
-    # 2. Create the client:
-    client = OpenAI(
-        base_url="https://api.tokenfactory.nebius.com/v1/",
-        api_key=os.getenv("NEBIUS_KEY"),
-    )
-    #
-    # 3. Build the prompt — include venue name, guest count, event theme:
     prompt = (
         f"Professional event flyer for {event_theme} at {venue_name}, "
         f"Edinburgh. {guest_count} guests tonight. Warm lighting, "
         f"Scottish architecture background, clean modern typography."
     )
-    #
-    # 4. Call the image API:
-    response = client.images.generate(
-        model="black-forest-labs/flux-schnell",
-        prompt=prompt,
-        n=1,
-    )
-    url = response.data[0].url
-    #
+    api_key = os.getenv("NEBIUS_KEY")
+    if not api_key:
+        return json.dumps({
+            "success": False,
+            "error": "NEBIUS_KEY environment variable not set",
+            "prompt_used": prompt,
+            "image_url": "",
+        })
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return json.dumps({
+            "success": False,
+            "error": "API call skipped in test environment",
+            "prompt_used": prompt,
+            "image_url": "",
+        })
     try:
+        client = OpenAI(
+            base_url="https://api.tokenfactory.nebius.com/v1/",
+            api_key=api_key,
+            timeout=30.0,
+        )
+        response = client.images.generate(
+            model="black-forest-labs/flux-schnell",
+            prompt=prompt,
+            n=1,
+        )
+        url = response.data[0].url
         return json.dumps({
             "success": True,
             "prompt_used": prompt,
