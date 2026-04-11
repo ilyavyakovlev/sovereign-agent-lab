@@ -87,7 +87,21 @@ TOOLS = [
 
 # Build the agent once at module load time.
 # Rebuilding it on every call would be wasteful.
-_agent = create_react_agent(llm, TOOLS)
+#
+# messages_modifier adds a system prompt that forces Llama to use the proper
+# function-calling API rather than outputting raw JSON in the message content.
+# Without this, Llama falls back to raw JSON for complex multi-tool tasks,
+# which LangGraph's ToolNode does not recognise — tools are never executed.
+_agent = create_react_agent(
+    llm,
+    TOOLS,
+    prompt=(
+        "You are an Edinburgh event planning assistant. "
+        "Always call tools using the function-calling interface provided. "
+        "Never output tool calls as raw JSON text in your response. "
+        "Call one tool at a time and wait for its result before proceeding."
+    ),
+)
 
 
 # ─── Public interface ─────────────────────────────────────────────────────────

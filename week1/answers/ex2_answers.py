@@ -15,16 +15,16 @@ TASK_A_TOOLS_CALLED = ["check_pub_availability", "calculate_catering_cost", "get
 
 # Which venue did the agent confirm? Must be one of:
 # "The Albanach", "The Haymarket Vaults", or "none"
-TASK_A_CONFIRMED_VENUE = "none"
+TASK_A_CONFIRMED_VENUE = "The Albanach"
 
 # Total catering cost the agent calculated. Float, e.g. 5600.0
 # Write 0.0 if the agent didn't calculate it.
-TASK_A_CATERING_COST_GBP = 0.0
+TASK_A_CATERING_COST_GBP = 5600.0
 
 # Did the weather tool return outdoor_ok = True or False?
 TASK_A_OUTDOOR_OK = False
 
-TASK_A_NOTES = "The script didn't return any answer. I also don't see the results of the tools call in the trace."   # optional — anything unexpected
+TASK_A_NOTES = "There was a bug in the script I (I mean, Claude Code) had to fix"   # optional — anything unexpected
 
 # ── Task B ─────────────────────────────────────────────────────────────────
 
@@ -42,41 +42,68 @@ TASK_B_PROMPT_USED = "Professional event flyer for Edinburgh AI Meetup, tech pro
 # Scenario 1: first choice unavailable
 # Quote the specific message where the agent changed course. Min 20 words.
 SCENARIO_1_PIVOT_MOMENT = """
-FILL ME IN
+The function calls show that The Bow Bar does not meet the requirements because it is full. The Haymarket Vaults and The Albanach both meet the requirements, but The Guilford Arms does not have vegan options.
 """
 
-SCENARIO_1_FALLBACK_VENUE = "FILL_ME_IN"
+SCENARIO_1_FALLBACK_VENUE = "The Haymarket Vaults and The Albanach"
 
 # Scenario 2: impossible constraint (300 guests)
 # Did the agent recommend a pub name not in the known venues list?
-SCENARIO_2_HALLUCINATED = None   # True or False
+SCENARIO_2_HALLUCINATED = False   # True or False
 
 # Paste the final [AI] message.
 SCENARIO_2_FINAL_ANSWER = """
-FILL ME IN
+None of the known venues meet the capacity and dietary requirements. The Albanach, The Haymarket Vaults, and The Guilford Arms have a capacity of 180, 160, and 200 respectively, which is less than the required capacity of 300. The Bow Bar has a capacity of 80, which is also less than the required capacity, and it is currently full. Therefore, none of the known venues can accommodate 300 people with vegan options.
 """
 
 # Scenario 3: out of scope (train times)
 # Did the agent try to call a tool?
-SCENARIO_3_TRIED_A_TOOL = None   # True or False
+SCENARIO_3_TRIED_A_TOOL = False   # True or False
 
-SCENARIO_3_RESPONSE = "FILL_ME_IN"
+SCENARIO_3_RESPONSE = """
+Your input is lacking necessary details. Please provide more information or specify the task you need help with.
+"""
 
 # Would this behaviour be acceptable in a real booking assistant? Min 30 words.
 SCENARIO_3_ACCEPTABLE = """
-FILL ME IN
+The agent correctly identified that the question is out of scope and communicated it, but the manner
+of communication could be improved. In a real booking assistant, it would be
+better to reiterate what the booking assistant can help with, rather than just stating that the input is lacking details. 
+For example, the agent could say, "I can assist you with booking a venue in Edinburgh. 
+Please provide details such as the number of guests, dietary requirements, and preferred date." 
+This would guide the user towards providing the necessary information for the agent to be helpful.
 """
 
 # ── Task D ─────────────────────────────────────────────────────────────────
 
 # Paste the Mermaid output from `python exercise2_langgraph.py task_d` here.
 TASK_D_MERMAID_OUTPUT = """
-PASTE MERMAID OUTPUT HERE
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        agent(agent)
+        tools(tools)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> agent;
+        agent -.-> __end__;
+        agent -.-> tools;
+        tools --> agent;
+        classDef default fill:#f2f0ff,line-height:1.2
+        classDef first fill-opacity:0
+        classDef last fill:#bfb6fc
 """
 
 # Compare the LangGraph graph to exercise3_rasa/data/rules.yml. Min 30 words.
 TASK_D_COMPARISON = """
-FILL ME IN
+Rasa flowchart describes a much more deterministic flow of the conversation,
+whereas the LangGraph graph represents a more flexible and dynamic interaction between the agent and the tools.
+This is a trade off between flexibility (current implementation in langgraph) and control (Rasa rules). 
+It is worth mentioning that langgraph framework allows building much more deterministic flows rather than
+just simple ReAct agent as in this example.
 """
 
 # ── Reflection ─────────────────────────────────────────────────────────────
