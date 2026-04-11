@@ -67,6 +67,8 @@ def search_venues(min_capacity: int, requires_vegan: bool) -> str:
     Use this to find candidates before fetching individual details.
     min_capacity: minimum number of guests the venue must hold
     requires_vegan: if True, only venues with a vegan menu are returned
+    If the returned matches list is empty (count = 0), there are no available
+    venues that satisfy the constraints — tell the user none were found.
     """
     matches = [
         {"name": name, **info}
@@ -75,7 +77,10 @@ def search_venues(min_capacity: int, requires_vegan: bool) -> str:
         and (not requires_vegan or info["vegan"])
         and info["status"] == "available"
     ]
-    return json.dumps({"matches": matches, "count": len(matches)})
+    result = {"matches": matches, "count": len(matches)}
+    if not matches:
+        result["message"] = "No available Edinburgh venues match these criteria."
+    return json.dumps(result)
 
 
 @mcp.tool()
