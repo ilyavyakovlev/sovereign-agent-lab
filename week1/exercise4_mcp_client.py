@@ -44,6 +44,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from pydantic import create_model
 
 load_dotenv()
 
@@ -63,6 +64,24 @@ OUTPUTS_DIR.mkdir(exist_ok=True)
 # Why a factory function and not a lambda?
 # Each closure must capture its own tool_name. If we used a lambda in a loop,
 # every closure would share the last value of tool_name — a classic Python gotcha.
+
+_MCP_TYPE_MAP = {"integer": int, "number": float, "string": str, "boolean": bool, "object": dict, "array": list}
+
+def _build_args_schema(input_schema: dict):
+    """Build a Pydantic model from an MCP tool's JSON inputSchema.
+
+    Without this, StructuredTool infers the schema from **kwargs and tells
+    the LLM the tool takes a single opaque 'kwargs' object — which causes
+    the model to output malformed calls that the agent loop never executes.
+    """
+    properties = input_schema.get("properties", {})
+    required   = set(input_schema.get("required", []))
+    fields = {}
+    for name, prop in properties.items():
+        py_type = _MCP_TYPE_MAP.get(prop.get("type", "string"), str)
+        fields[name] = (py_type, ...) if name in required else (py_type, None)
+    return create_model("ToolArgs", **fields)
+
 
 def _make_mcp_caller(tool_name: str, server_script: str):
     def call(**kwargs) -> str:
@@ -93,10 +112,12 @@ async def discover_tools(server_script: str) -> list:
             raw   = await session.list_tools()
             tools = []
             for t in raw.tools:
+                schema  = _build_args_schema(t.inputSchema) if t.inputSchema else None
                 lc_tool = StructuredTool.from_function(
                     func=_make_mcp_caller(t.name, server_script),
                     name=t.name,
                     description=t.description or f"MCP tool: {t.name}",
+                    args_schema=schema,
                 )
                 tools.append(lc_tool)
             return tools, [t.name for t in raw.tools]
@@ -109,13 +130,28 @@ def extract_trace(result: dict) -> list:
     for m in result["messages"]:
         role    = getattr(m, "type", "unknown")
         content = m.content
+
+        # OpenAI format: tool calls live in message.tool_calls, content is empty
+        tool_calls = getattr(m, "tool_calls", None)
+        if tool_calls:
+            for tc in tool_calls:
+                trace.append({"role": "tool_call", "tool": tc["name"], "args": tc.get("args", {})})
+
+        # Anthropic format: tool calls are dicts inside a content list
         if isinstance(content, list):
             for block in content:
                 if isinstance(block, dict) and block.get("type") == "tool_use":
                     trace.append({"role": "tool_call", "tool": block["name"],
                                   "args": block.get("input", {})})
-        elif content:
+
+        # Tool result messages (ToolMessage)
+        elif role == "tool" and content:
+            trace.append({"role": "tool_result", "content": str(content)})
+
+        # Regular text content (human / final AI answer)
+        elif content and not tool_calls:
             trace.append({"role": role, "content": str(content)})
+
     return trace
 
 
@@ -124,6 +160,11 @@ def print_trace(trace: list) -> None:
         if entry["role"] == "tool_call":
             args_str = json.dumps(entry.get("args", {}))[:80]
             print(f"  [TOOL_CALL] → {entry['tool']}({args_str})")
+        elif entry["role"] == "tool_result":
+            content = entry["content"]
+            if len(content) > 400:
+                content = content[:400] + "..."
+            print(f"  [TOOL_RESULT]\n  {content}\n")
         elif entry.get("content"):
             content = entry["content"]
             if len(content) > 400:
